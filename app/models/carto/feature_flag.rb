@@ -7,7 +7,7 @@ module Carto
     has_many :users, through: :feature_flags_user
 
     scope :restricted, -> { where(restricted: true) }
-    scope :not_restricted, -> { where(restriced: false) }
+    scope :not_restricted, -> { where(restricted: false) }
 
     # def self.find_by_user(user)
     #   restricted + user.feature_flags.restricted
