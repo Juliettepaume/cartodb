@@ -15,14 +15,15 @@ describe Carto::FeatureFlag do
     [@user_ff, @unused_ff, @unrestricted_ff].each(&:destroy)
   end
 
-  describe "#find_by_user" do
-    it "returns the user feature flags and the unrestricted ones" do
-      expected_result = [@unrestricted_ff, @user_ff]
+  # TODO: remove. This method is not used.
+  # describe "#find_by_user" do
+  #   it "returns the user feature flags and the unrestricted ones" do
+  #     expected_result = [@unrestricted_ff, @user_ff]
 
-      result = Carto::FeatureFlag.find_by_user(@user)
+  #     result = Carto::FeatureFlag.find_by_user(@user)
 
-      expect(result).to eql(expected_result)
-    end
-  end
+  #     expect(result).to eql(expected_result)
+  #   end
+  # end
 
 end
