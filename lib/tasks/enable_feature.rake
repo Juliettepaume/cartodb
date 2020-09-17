@@ -10,9 +10,9 @@ namespace :cartodb do
       raise "[ERROR]  Feature '#{args[:feature]}' does not exist" if ff.nil?
 
       ::User.all.each do |user|
-        if FeatureFlagsUser[feature_flag_id: ff.id, user_id: user.id].nil?
-            FeatureFlagsUser.new(feature_flag_id: ff.id, user_id: user.id).save
-            track_feature_flag_state(user.id, args[:feature], 'enabled')
+        if !Carto::FeatureFlagsUser.exists?(feature_flag: ff, user: user)
+          Carto::FeatureFlagsUser.create(feature_flag: ff, user: user)
+          track_feature_flag_state(user.id, args[:feature], 'enabled')
         end
       end
     end
@@ -28,8 +28,8 @@ namespace :cartodb do
       user = ::User[username: args[:username]]
       raise "[ERROR]  User '#{args[:username]}' does not exist" if user.nil?
 
-      if FeatureFlagsUser[feature_flag_id: ff.id, user_id: user.id].nil?
-        FeatureFlagsUser.new(feature_flag_id: ff.id, user_id: user.id).save
+      if !Carto::FeatureFlagsUser.exists?(feature_flag: ff, user: user)
+        Carto::FeatureFlagsUser.create(feature_flag: ff, user: user)
         track_feature_flag_state(user.id, args[:feature], 'enabled')
       else
         puts "[INFO]  Feature '#{args[:feature]}' was already enabled for user '#{args[:username]}'"
@@ -48,9 +48,9 @@ namespace :cartodb do
       raise "[ERROR]  Organization '#{args[:org_name]}' does not exist" if organization.nil?
 
       organization.users.each do |user|
-        if FeatureFlagsUser[feature_flag_id: ff.id, user_id: user.id].nil?
-            FeatureFlagsUser.new(feature_flag_id: ff.id, user_id: user.id).save
-            track_feature_flag_state(user.id, args[:feature], 'enabled')
+        if !Carto::FeatureFlagsUser.exists?(feature_flag: ff, user: user)
+          Carto::FeatureFlagsUser.create(feature_flag: ff, user: user)
+          track_feature_flag_state(user.id, args[:feature], 'enabled')
         end
       end
     end
@@ -63,7 +63,7 @@ namespace :cartodb do
       ff = Carto::FeatureFlag.find_by(name: args[:feature])
       raise "[ERROR]  Feature '#{args[:feature]}' does not exist" if ff.nil?
 
-      ffus = FeatureFlagsUser[:feature_flag_id => ff.id]
+      ffus = Carto::FeatureFlagsUser.where(feature_flag: ff)
       if ffus.nil?
         puts "[INFO]  No users had feature '#{args[:feature]}' enabled"
       else
@@ -82,10 +82,10 @@ namespace :cartodb do
       user = ::User[username: args[:username]]
       raise "[ERROR]  User '#{args[:username]}' does not exist" if user.nil?
 
-      if FeatureFlagsUser[feature_flag_id: ff.id, user_id: user.id].nil?
+      if !Carto::FeatureFlagsUser.exists?(feature_flag: ff, user: user)
         puts "[INFO]  Feature '#{args[:feature]}' was already disabled for user '#{args[:username]}'"
       else
-        FeatureFlagsUser[feature_flag_id: ff.id, user_id: user.id].destroy
+        Carto::FeatureFlagsUser.where(feature_flag: ff, user: user).destroy_all
         track_feature_flag_state(user.id, args[:feature], 'disabled')
       end
     end
@@ -102,10 +102,10 @@ namespace :cartodb do
       raise "[ERROR]  Organization '#{args[:org_name]}' does not exist" if organization.nil?
 
       organization.users.each do |user|
-        if FeatureFlagsUser[feature_flag_id: ff.id, user_id: user.id].nil?
+        if !Carto::FeatureFlagsUser.exists?(feature_flag: ff, user: user)
           puts "[INFO]  Feature '#{args[:feature]}' was already disabled for user '#{args[:username]}'"
         else
-          FeatureFlagsUser[feature_flag_id: ff.id, user_id: user.id].destroy
+          Carto::FeatureFlagsUser.where(feature_flag: ff, user: user).destroy_all
           track_feature_flag_state(user.id, args[:feature], 'disabled')
         end
       end
@@ -166,7 +166,7 @@ namespace :cartodb do
       ff = Carto::FeatureFlag.find_by(name: args[:feature])
       raise "[ERROR]  Feature '#{args[:feature]}' does not exist" if ff.nil?
 
-      ffus = FeatureFlagsUser[:feature_flag_id => ff.id]
+      ffus = Carto::FeatureFlagsUser.where(feature_flag: ff)
       if ffus.nil?
         puts "[INFO]  No users had feature '#{args[:feature]}' enabled"
       else

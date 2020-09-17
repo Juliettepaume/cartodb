@@ -62,13 +62,13 @@ namespace :cartodb do
 
     def enable_feature_flag
       ff = Carto::FeatureFlag.find_by(name: 'ghost_tables_trigger_disabled')
-      FeatureFlagsUser.new(feature_flag_id: ff.id, user_id: @user.id).save
+      Carto::FeatureFlagsUser.create(feature_flag: ff, user: @user)
       @user.reload
     end
 
     def disable_feature_flag
       ff = Carto::FeatureFlag.find_by(name: 'ghost_tables_trigger_disabled')
-      FeatureFlagsUser.where(feature_flag_id: ff.id, user_id: @user.id).first.try(:destroy)
+      Carto::FeatureFlagsUser.where(feature_flag: ff, user: @user).destroy_all
       @user.reload
     end
 

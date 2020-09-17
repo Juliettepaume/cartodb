@@ -192,7 +192,7 @@ module Concerns
     def update_feature_flags(feature_flag_ids)
       feature_flag_ids = feature_flag_ids.compact.reject(&:empty?)
       current_feature_flag_ids = self.feature_flags_user.map { | ffu | ffu.feature_flag_id }
-      to_add = feature_flag_ids - current_feature_flag_ids
+      new_feature_flags = feature_flag_ids - current_feature_flag_ids
       to_remove = current_feature_flag_ids - feature_flag_ids
 
       removed_feature_flags_user = self.feature_flags_user.select { | ffu | to_remove.include?(ffu.feature_flag_id) }
@@ -200,15 +200,9 @@ module Concerns
         rffu.destroy
       end
 
-      to_add.map { | ff_id |
-        ffu = FeatureFlagsUser.new
-        ffu.user_id = self.id
-        ffu.feature_flag_id = ff_id
-        ffu.save
-      }.each { |ffu|
-        self.feature_flags_user << ffu
-      }
-
+      new_feature_flags.each do | feature_flag_id |
+        feature_flags_user << Carto::FeatureFlagsUser.create!(user: self, feature_flag_id: feature_flag_id)
+      end
     end
 
   end

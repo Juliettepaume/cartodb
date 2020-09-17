@@ -50,7 +50,7 @@ describe Carto::FeatureFlag do
 
       expect {
         delete superadmin_feature_flag_url(feature_flag.id), { feature_flag: feature_flag }.to_json, superadmin_headers
-      }.to change(FeatureFlagsUser, :count).by(-1)
+      }.to change(Carto::FeatureFlagsUser, :count).by(-1)
     end
   end
 

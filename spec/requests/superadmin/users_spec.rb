@@ -544,7 +544,7 @@ feature "Superadmin's users API" do
         put superadmin_user_url(user.id), {
           user: { feature_flags: ["#{second_feature_flag.id}"] }, id: user.id
         }.to_json, superadmin_headers
-      end.to change(FeatureFlagsUser, :count).by(-1)
+      end.to change(Carto::FeatureFlagsUser, :count).by(-1)
     end
 
     it 'should create user feature_flag relation' do
@@ -558,7 +558,7 @@ feature "Superadmin's users API" do
         put superadmin_user_url(user.id), {
           user: { feature_flags: [first_feature_flag.id.to_s, second_feature_flag.id.to_s] }, id: user.id
         }.to_json, superadmin_headers
-      end.to change(FeatureFlagsUser, :count).by(1)
+      end.to change(Carto::FeatureFlagsUser, :count).by(1)
     end
 
     it 'should create new rate limit if user does not have' do
@@ -705,7 +705,7 @@ feature "Superadmin's users API" do
 
       expect do
         delete superadmin_user_url(user.id), { user: user }.to_json, superadmin_headers
-      end.to change(FeatureFlagsUser, :count).by(-1)
+      end.to change(Carto::FeatureFlagsUser, :count).by(-1)
     end
 
     it 'should destroy rate_limit' do
