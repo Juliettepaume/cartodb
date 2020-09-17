@@ -124,9 +124,9 @@ class Carto::User < ActiveRecord::Base
 
   def feature_flags_list
     ffs = feature_flags_user + (organization&.inheritable_feature_flags || [])
-    @feature_flag_names = (ffs
-                                 .map { |ff| ff.feature_flag.name } + FeatureFlag.where(restricted: false)
-                                                                                 .map(&:name)).uniq.sort
+    @feature_flag_names = (
+      ffs.map { |ff| ff.feature_flag.name } + Carto::FeatureFlag.not_restricted.pluck(:name)
+    ).uniq.sort
   end
 
   def has_feature_flag?(feature_flag_name)

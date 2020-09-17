@@ -6,7 +6,7 @@ namespace :cartodb do
     desc "enable feature for all users"
     task :enable_feature_for_all_users, [:feature] => :environment do |t, args|
 
-      ff = FeatureFlag[:name => args[:feature]]
+      ff = Carto::FeatureFlag.find_by(name: args[:feature])
       raise "[ERROR]  Feature '#{args[:feature]}' does not exist" if ff.nil?
 
       ::User.all.each do |user|
@@ -22,7 +22,7 @@ namespace :cartodb do
     desc "enable feature for a given user"
     task :enable_feature_for_user, [:feature, :username] => :environment do |t, args|
 
-      ff = FeatureFlag[:name => args[:feature]]
+      ff = Carto::FeatureFlag.find_by(name: args[:feature])
       raise "[ERROR]  Feature '#{args[:feature]}' does not exist" if ff.nil?
 
       user = ::User[username: args[:username]]
@@ -41,7 +41,7 @@ namespace :cartodb do
     desc "enable feature for a given organization"
     task :enable_feature_for_organization, [:feature, :org_name] => :environment do |t, args|
 
-      ff = FeatureFlag[:name => args[:feature]]
+      ff = Carto::FeatureFlag.find_by(name: args[:feature])
       raise "[ERROR]  Feature '#{args[:feature]}' does not exist" if ff.nil?
 
       organization = Organization[name: args[:org_name]]
@@ -60,7 +60,7 @@ namespace :cartodb do
     desc "disable feature for all users"
     task :disable_feature_for_all_users, [:feature] => :environment do |t, args|
 
-      ff = FeatureFlag[:name => args[:feature]]
+      ff = Carto::FeatureFlag.find_by(name: args[:feature])
       raise "[ERROR]  Feature '#{args[:feature]}' does not exist" if ff.nil?
 
       ffus = FeatureFlagsUser[:feature_flag_id => ff.id]
@@ -76,7 +76,7 @@ namespace :cartodb do
     desc "disable feature for a given user"
     task :disable_feature_for_user, [:feature, :username] => :environment do |t, args|
 
-      ff = FeatureFlag[:name => args[:feature]]
+      ff = Carto::FeatureFlag.find_by(name: args[:feature])
       raise "[ERROR]  Feature '#{args[:feature]}' does not exist" if ff.nil?
 
       user = ::User[username: args[:username]]
@@ -95,7 +95,7 @@ namespace :cartodb do
     desc "disable feature for a given organization"
     task :disable_feature_for_organization, [:feature, :org_name] => :environment do |t, args|
 
-      ff = FeatureFlag[:name => args[:feature]]
+      ff = Carto::FeatureFlag.find_by(name: args[:feature])
       raise "[ERROR]  Feature '#{args[:feature]}' does not exist" if ff.nil?
 
       organization = Organization[name: args[:org_name]]
@@ -129,10 +129,10 @@ namespace :cartodb do
     task :add_feature_flag, [:feature, :restricted] => :environment do |_task, args|
       restricted = args[:restricted] ? args[:restricted].casecmp('false') != 0 : true
 
-      ff = FeatureFlag[name: args[:feature]]
+      ff = Carto::FeatureFlag.find_by(name: args[:feature])
       if !ff
-        ff = FeatureFlag.new(name: args[:feature], restricted: restricted)
-        ff.id = FeatureFlag.any? ? FeatureFlag.order(:id).last.id + 1 : 0
+        ff = Carto::FeatureFlag.new(name: args[:feature], restricted: restricted)
+        ff.id = Carto::FeatureFlag.any? ? Carto::FeatureFlag.order(:id).last.id + 1 : 0
         ff.save
 
         puts "[INFO]\tFeature flag '#{args[:feature]}' created and restricted set to '#{ff.restricted}'"
@@ -147,7 +147,7 @@ namespace :cartodb do
     task :change_feature_restricted, [:feature, :restricted] => :environment do |_task, args|
       restricted = args[:restricted] ? args[:restricted].casecmp('false') != 0 : true
 
-      ff = FeatureFlag[name: args[:feature]]
+      ff = Carto::FeatureFlag.find_by(name: args[:feature])
       if ff
         ff.restricted = restricted
         ff.save
@@ -163,7 +163,7 @@ namespace :cartodb do
     desc "remove feature flag"
     task :remove_feature_flag, [:feature] => :environment do |t, args|
 
-      ff = FeatureFlag[:name => args[:feature]]
+      ff = Carto::FeatureFlag.find_by(name: args[:feature])
       raise "[ERROR]  Feature '#{args[:feature]}' does not exist" if ff.nil?
 
       ffus = FeatureFlagsUser[:feature_flag_id => ff.id]
@@ -182,7 +182,7 @@ namespace :cartodb do
     task :list_all_features => :environment do
 
       puts "Available features:"
-      FeatureFlag.all.each do |feature|
+      Carto::FeatureFlag.all.each do |feature|
         puts "  - #{feature.name}"
       end
     end

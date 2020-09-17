@@ -3,7 +3,7 @@ module FeatureFlagHelper
     user.reload
     previous_state = user.has_feature_flag?(feature)
     if state != previous_state
-      ff = FeatureFlag[name: feature]
+      ff = Carto::FeatureFlag.find_by(name: feature)
       ffu = FeatureFlagsUser[feature_flag_id: ff.id, user_id: user.id]
       if state
         unless ffu
