@@ -54,13 +54,15 @@ class User < Sequel::Model
     layer.set_default_order(user)
   }
 
-  one_to_many :feature_flags_user
+  def feature_flags_user
+    Carto::FeatureFlagsUser.where(user_id: id)
+  end
 
   plugin :many_through_many
   many_through_many :groups, [[:users_groups, :user_id, :group_id]]
 
   # Sequel setup & plugins
-  plugin :association_dependencies, :client_application => :destroy, :synchronization_oauths => :destroy, :feature_flags_user => :destroy
+  plugin :association_dependencies, :client_application => :destroy, :synchronization_oauths => :destroy
   plugin :validation_helpers
   plugin :json_serializer
   plugin :dirty
@@ -455,7 +457,7 @@ class User < Sequel::Model
       $users_metadata.DEL(timeout_key)
     end
 
-    feature_flags_user.each(&:delete)
+    feature_flags_user.each(&:destroy)
   end
 
   def drop_database(has_organization)
