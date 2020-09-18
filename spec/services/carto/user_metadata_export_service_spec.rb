@@ -421,7 +421,7 @@ describe Carto::UserMetadataExportService do
     expect(export[:assets].count).to eq user.assets.size
     export[:assets].zip(user.assets).each { |exported_asset, asset| expect_export_matches_asset(exported_asset, asset) }
 
-    expect(export[:feature_flags]).to eq user.feature_flags_user.map(&:feature_flag).map(&:name)
+    expect(export[:feature_flags]).to eq user.feature_flags_names
 
     if export[:search_tweets]
       expect(export[:search_tweets].count).to eq user.search_tweets.size

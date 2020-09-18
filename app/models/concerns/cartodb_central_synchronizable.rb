@@ -175,10 +175,8 @@ module Concerns
       self
     end
 
-    def set_relationships_from_central(params)
-      if params.present? && params.has_key?(:feature_flags)
-        update_feature_flags(params[:feature_flags])
-      end
+    def set_relationships_from_central(params = {})
+      update_feature_flags(params[:feature_flags]) if params[:feature_flags]
     end
 
     def sync_data_with_cartodb_central?
@@ -190,18 +188,11 @@ module Concerns
     end
 
     def update_feature_flags(feature_flag_ids)
-      feature_flag_ids = feature_flag_ids.compact.reject(&:empty?)
-      current_feature_flag_ids = self.feature_flags_user.map { | ffu | ffu.feature_flag_id }
-      new_feature_flags = feature_flag_ids - current_feature_flag_ids
-      to_remove = current_feature_flag_ids - feature_flag_ids
+      Carto::FeatureFlagsUser.where.not(id: feature_flag_ids).destroy_all
 
-      removed_feature_flags_user = self.feature_flags_user.select { | ffu | to_remove.include?(ffu.feature_flag_id) }
-      removed_feature_flags_user.map do | rffu |
-        rffu.destroy
-      end
-
-      new_feature_flags.each do | feature_flag_id |
-        feature_flags_user << Carto::FeatureFlagsUser.create!(user: self, feature_flag_id: feature_flag_id)
+      new_feature_flags_ids = feature_flag_ids - feature_flags_user.pluck(:id)
+      new_feature_flags_ids.each do |feature_flag_id|
+        feature_flags_user.create!(feature_flag_id: feature_flag_id)
       end
     end
 

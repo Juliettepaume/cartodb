@@ -54,8 +54,12 @@ class User < Sequel::Model
     layer.set_default_order(user)
   }
 
-  def feature_flags_user
+  def self_feature_flags_user
     Carto::FeatureFlagsUser.where(user_id: id)
+  end
+
+  def self_feature_flags
+    Carto::FeatureFlag.where(id: self_feature_flags_user.pluck(:feature_flag_id))
   end
 
   plugin :many_through_many
@@ -457,7 +461,7 @@ class User < Sequel::Model
       $users_metadata.DEL(timeout_key)
     end
 
-    feature_flags_user.each(&:destroy)
+    self_feature_flags_user.each(&:destroy)
   end
 
   def drop_database(has_organization)
@@ -1269,20 +1273,6 @@ class User < Sequel::Model
     else
       false
     end
-  end
-
-  def feature_flags
-    ffs = feature_flags_user + (organization&.inheritable_feature_flags || [])
-    @feature_flag_names = (ffs.map { |ff| ff.feature_flag.name } + Carto::FeatureFlag.not_restricted.pluck(:name)).uniq.sort
-  end
-
-  def has_feature_flag?(feature_flag_name)
-    self.feature_flags.present? && self.feature_flags.include?(feature_flag_name)
-  end
-
-  def reload
-    @feature_flag_names = nil
-    super
   end
 
   def create_client_application
