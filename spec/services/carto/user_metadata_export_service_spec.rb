@@ -11,7 +11,7 @@ describe Carto::UserMetadataExportService do
 
   before(:all) do
     bypass_named_maps
-    @feature_flag = FactoryGirl.create(:carto_feature_flag)
+    @feature_flag = create(:feature_flag)
     @connector_provider = FactoryGirl.create(:connector_provider)
     user = FactoryGirl.create(:carto_user)
     @oauth_app = FactoryGirl.create(:oauth_app, user: user)
