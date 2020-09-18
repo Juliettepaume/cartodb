@@ -1,6 +1,7 @@
 module FeatureFlagHelper
   def set_feature_flag(user, feature, state)
-    user.reload
+    user = user.carto_user
+
     previous_state = user.has_feature_flag?(feature)
     if state != previous_state
       ff = Carto::FeatureFlag.find_by(name: feature)
