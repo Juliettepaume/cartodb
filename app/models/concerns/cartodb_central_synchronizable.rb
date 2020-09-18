@@ -190,9 +190,9 @@ module Concerns
     def update_feature_flags(feature_flag_ids)
       Carto::FeatureFlagsUser.where.not(id: feature_flag_ids).destroy_all
 
-      new_feature_flags_ids = feature_flag_ids - feature_flags_user.pluck(:id)
+      new_feature_flags_ids = feature_flag_ids - self_feature_flags_user.pluck(:id)
       new_feature_flags_ids.each do |feature_flag_id|
-        feature_flags_user.create!(feature_flag_id: feature_flag_id)
+        self_feature_flags_user.create!(feature_flag_id: feature_flag_id)
       end
     end
 
